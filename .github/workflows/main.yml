@@ -60,8 +60,13 @@ jobs:
          cp customEngine/src/out/android_release/lib.stripped/libflutter.so libflutter_arm.so 2>/dev/null || :
          cp customEngine/src/out/android_release_x64/lib.stripped/libflutter.so libflutter_x64.so 2>/dev/null || :
          cp customEngine/src/out/android_jit_release_x86/lib.stripped/libflutter.so libflutter_x86.so 2>/dev/null || :
+      - name: Upload android build
+        uses: actions/upload-artifact@v3
+        with:
+          name: android-flutter
+          path: ./*.so
       - name: Release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v0.1.15
         with:
           target_commitish: v2-${{env.SNAPSHOT_HASH}}
           tag_name: android-v2-${{env.SNAPSHOT_HASH}}
@@ -114,12 +119,19 @@ jobs:
           gclient sync
           reflutter ${{env.SNAPSHOT_HASH}} -l
       - name: ninja build Flutter.framework
-        run: export PATH=$PATH:`pwd`/depot_tools && sudo xcode-select -s /Applications/Xcode_13.0.app && customEngine/src/flutter/tools/gn --ios --ios-cpu=arm64 --runtime-mode=release && ninja -C customEngine/src/out/ios_release
+        run: |
+         sed -i -e 's|MacOSX(10\\.\\d\+)|MacOSX\.\+|g' /Users/runner/work/reFlutter/reFlutter/customEngine/src/build/mac/find_sdk.py
+         export PATH=$PATH:`pwd`/depot_tools && sudo xcode-select -s /Applications/Xcode_13.0.app && customEngine/src/flutter/tools/gn --ios --ios-cpu=arm64 --runtime-mode=release && ninja -C customEngine/src/out/ios_release
       - name: Move to release
         run: |
          cp customEngine/src/out/ios_release/Flutter.framework/Flutter Flutter
+      - name: Upload ios build
+        uses: actions/upload-artifact@v3
+        with:
+          name: ios-flutter
+          path: ./Flutter/*
       - name: Release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v0.1.15
         with:
           target_commitish: v2-${{env.SNAPSHOT_HASH}}
           tag_name: ios-v2-${{env.SNAPSHOT_HASH}}
