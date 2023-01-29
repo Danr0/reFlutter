@@ -130,6 +130,8 @@ jobs:
           reflutter ${{env.SNAPSHOT_HASH}} -l
       - name: ninja build Flutter.framework
         run: |
+         sed -i -e 's|MacOSX(10\\.\\d\+)|MacOSX\.\+|g' /Users/runner/work/reFlutter/reFlutter/customEngine/src/build/mac/find_sdk.py
+         sed -i -e "s|'macosx' +| |g" /Users/runner/work/reFlutter/reFlutter/customEngine/src/build/mac/find_sdk.py
          sed -i -e "s|if options.print_sdk_path:|if False:|g" /Users/runner/work/reFlutter/reFlutter/customEngine/src/build/mac/find_sdk.py
          export PATH=$PATH:`pwd`/depot_tools && sudo xcode-select -s /Applications/Xcode_13.0.app && customEngine/src/flutter/tools/gn --ios --ios-cpu=arm64 --runtime-mode=release && ninja -C customEngine/src/out/ios_release
       - name: Move to release
